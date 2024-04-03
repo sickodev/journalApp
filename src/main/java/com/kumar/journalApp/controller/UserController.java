@@ -18,7 +18,7 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public ResponseEntity<?> getAll(){
+    public ResponseEntity<?> getAllUsers(){
         List<User> all = userService.getAll();
 
         if(!all.isEmpty()){
@@ -28,12 +28,26 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("/id/{id}")
-    public ResponseEntity<User> getById(@PathVariable ObjectId id){
-        Optional<User> user = userService.getById(id);
-        if(user.isPresent()) {
+    @PostMapping
+    public ResponseEntity<?> createUser(@RequestBody User user){
+        try{
+            userService.saveUser(user);
             return new ResponseEntity<>(user, HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    @PutMapping("/{username}")
+    public ResponseEntity<?> updateUser(@RequestBody User user, @PathVariable String username){
+        User userInDb = userService.findByUsername(username);
+        if(userInDb != null){
+            userInDb.setUsername(user.getUsername());
+            userInDb.setPassword(user.getPassword());
+            userService.saveUser(userInDb);
+            return new ResponseEntity<>(userInDb, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }

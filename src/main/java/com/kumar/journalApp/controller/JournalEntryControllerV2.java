@@ -22,7 +22,7 @@ public class JournalEntryControllerV2 {
     private JournalEntryService journalEntryService;
 
     @GetMapping
-    public ResponseEntity<?> getAll() {
+    public ResponseEntity<?> getAllEntries() {
         List<JournalEntry> all = journalEntryService.getAll();
         if(all != null && !all.isEmpty()){
             return new ResponseEntity<>(all,HttpStatus.OK);
@@ -31,7 +31,7 @@ public class JournalEntryControllerV2 {
     }
 
     @GetMapping("/id/{myId}")
-    public ResponseEntity<JournalEntry> getById(@PathVariable ObjectId myId) {
+    public ResponseEntity<JournalEntry> getEntryById(@PathVariable ObjectId myId) {
         Optional<JournalEntry> entry = journalEntryService.getById(myId);
         return entry.map(journalEntry -> new ResponseEntity<>(journalEntry, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -48,17 +48,17 @@ public class JournalEntryControllerV2 {
     }
 
     @DeleteMapping("/id/{myId}")
-    public ResponseEntity<?> deleteById(@PathVariable ObjectId myId) {
+    public ResponseEntity<?> deleteEntryById(@PathVariable ObjectId myId) {
         journalEntryService.deleteById(myId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping("/id/{myId}")
-    public ResponseEntity<JournalEntry> updateById(@PathVariable ObjectId myId, @RequestBody JournalEntry journalEntry) {
+    public ResponseEntity<JournalEntry> updateEntryById(@PathVariable ObjectId myId, @RequestBody JournalEntry journalEntry) {
         JournalEntry entry = journalEntryService.getById(myId).orElse(null);
         if (entry != null) {
-            entry.setTitle(journalEntry.getTitle() != null && journalEntry.getTitle().equals("") ? journalEntry.getTitle() : entry.getTitle());
-            entry.setContent(journalEntry.getContent() != null && journalEntry.getContent().equals("") ? journalEntry.getContent() : entry.getContent());
+            entry.setTitle(journalEntry.getTitle() != null && journalEntry.getTitle().isEmpty() ? journalEntry.getTitle() : entry.getTitle());
+            entry.setContent(journalEntry.getContent() != null && journalEntry.getContent().isEmpty() ? journalEntry.getContent() : entry.getContent());
             journalEntryService.saveEntry(entry);
             return new ResponseEntity<>(entry, HttpStatus.OK);
         }
